@@ -61,8 +61,8 @@ class Routes(models.Model):
     country_arrival = models.CharField(max_length=40, default='Poland')
     city_departure = models.CharField(max_length=40, default='Minsk')
     city_arrival = models.CharField(max_length=40, default='Warsaw')
-    date_departure = models.DateTimeField(auto_now_add=True)
-    date_arrival = models.DateTimeField(auto_now_add=True)
+    date_departure = models.DateTimeField()
+    date_arrival = models.DateTimeField()
     price = models.PositiveIntegerField(default=328)
 
     def __str__(self):

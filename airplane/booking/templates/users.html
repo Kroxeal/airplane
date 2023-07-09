@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %} Users {% endblock %}
+
+{% block content %}
+
+
+    <table class="table table-striped table-bordered">
+  <thead>
+    <tr>
+      <th scope="col">name</th>
+      <th scope="col">email</th>
+      <th scope="col">passport</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for user in userss %}
+        <tr>
+            <td>{{ user.name}} {{user.surname}} </td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.passport}}</td>
+        </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

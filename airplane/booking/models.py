@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 # Create your models here.
 
@@ -6,6 +8,15 @@ SEX = [
     ("m", "male"),
     ("f", "female")
 ]
+
+
+# def validate_even(value):
+#     id_airplane = Airplanes.objects.get
+#     if value >= Airplanes.objects.get:
+#         raise ValidationError(
+#             _("%(value)s is not an even number"),
+#             params={"value": value},
+#         )
 
 
 class Airplanes(models.Model):
@@ -20,7 +31,7 @@ class Orders(models.Model):
     # user = models.ForeignKey('Users', on_delete=models.CASCADE)
     airplane = models.OneToOneField('Airplanes', on_delete=models.CASCADE)
     route = models.OneToOneField('Routes', on_delete=models.CASCADE, null=True)
-    # seat_number = models.PositiveIntegerField(null=True)
+    # seat_number = models.ForeignKey('Seats', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return f"{self.airplane}"
@@ -67,3 +78,17 @@ class Routes(models.Model):
 
     def __str__(self):
         return f"from {self.country_departure} to {self.country_arrival}"
+
+
+class Seats(models.Model):
+    seat_number = models.PositiveIntegerField(default=0, validators=[])
+    user = models.ForeignKey('Users', on_delete=models.CASCADE)
+    airplane = models.ForeignKey('Airplanes', on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('airplane',
+                           'seat_number',
+                           )
+
+    def __str__(self):
+        return f"{self.seat_number}"

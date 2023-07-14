@@ -1,17 +1,21 @@
 from django.contrib import admin
-from .models import *
+from .models import Passports, Users, Seats, Routes, Aircrafts, Orders
 from django.utils.html import format_html
 from django.db.models import F
 from django.utils.safestring import mark_safe
 # Register your models here.
 
 
+class RoutesInlines(admin.StackedInline):
+    model = Routes
+
+
+class OrdersInline(admin.StackedInline):
+    model = Orders
+
+
 class SeatsInline(admin.StackedInline):
     model = Seats
-
-
-class OrdersUsersIniline(admin.StackedInline):
-    model = OrdersUsers
 
 
 class UsersIniline(admin.StackedInline):
@@ -28,27 +32,16 @@ def get_html_photo(objects):
         return mark_safe(f'<img src={objects.photo.url} width=50>')
 
 
-@admin.register(Airplanes)
-class AirplanesAdmin(admin.ModelAdmin):
+@admin.register(Aircrafts)
+class AircraftsAdmin(admin.ModelAdmin):
     list_display = ['name',
-                    'seat',
+                    'amount',
                     ]
-    inlines = [
-        SeatsInline,
-    ]
-
-
-@admin.register(Seats)
-class SeatsAdmin(admin.ModelAdmin):
-    list_display = [
-        'user',
-        'airplane',
-        'seat_number',
-        ]
-    list_editable = ['seat_number',
+    list_editable = ['amount',
                      ]
-    list_filter = ['airplane',
-                   ]
+    inlines = [RoutesInlines,
+               SeatsInline,
+               ]
 
 
 @admin.register(Passports)
@@ -89,6 +82,7 @@ class RoutesAdmin(admin.ModelAdmin):
                     'date_departure',
                     'date_arrival',
                     'price',
+                    'aircraft',
                     ]
     list_editable = [
         'price',
@@ -100,6 +94,7 @@ class RoutesAdmin(admin.ModelAdmin):
               'date_departure',
               'date_arrival',
               'price',
+              'aircraft',
               ]
 
 
@@ -117,22 +112,29 @@ class UsersAdmin(admin.ModelAdmin):
     list_display_links = ['name',
                           'passport',
                           ]
+    inlines = [OrdersInline,
+               ]
 
 
 @admin.register(Orders)
 class OrdersAdmin(admin.ModelAdmin):
-    list_display = ['airplane',
-                    'route',
-                    ]
-    inlines = [
-        OrdersUsersIniline,
-        ]
-
-
-@admin.register(OrdersUsers)
-class OrdersUsersAdmin(admin.ModelAdmin):
     list_display = ['user',
-                    'order',
+                    'date',
+                    'status',
+                    'total_amount',
                     ]
+    list_editable = ['total_amount',
+                     ]
+    inlines = [SeatsInline,
+               ]
+
+
+@admin.register(Seats)
+class SeatsAdmin(admin.ModelAdmin):
+    list_display = ['order',
+                    'seat_number',
+                    'aircraft',
+                    ]
+
 
 

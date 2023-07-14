@@ -9,37 +9,29 @@ SEX = [
     ("f", "female")
 ]
 
-
-# def validate_even(value):
-#     id_airplane = Airplanes.objects.get
-#     if value >= Airplanes.objects.get:
-#         raise ValidationError(
-#             _("%(value)s is not an even number"),
-#             params={"value": value},
-#         )
+STATUS_CHOICES = [
+    ("p", "paid"),
+    ("n", "not paid"),
+    ("r", "rejected")
+]
 
 
-class Airplanes(models.Model):
+class Aircrafts(models.Model):
     name = models.CharField(max_length=100)
-    seat = models.IntegerField()
+    amount = models.IntegerField()
 
     def __str__(self):
         return f"{self.name}"
 
 
 class Orders(models.Model):
-    # user = models.ForeignKey('Users', on_delete=models.CASCADE)
-    airplane = models.OneToOneField('Airplanes', on_delete=models.CASCADE)
-    route = models.OneToOneField('Routes', on_delete=models.CASCADE, null=True)
-    # seat_number = models.ForeignKey('Seats', on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey('Users', on_delete=models.CASCADE)
+    total_amount = models.IntegerField()
+    date = models.DateTimeField()
+    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
 
     def __str__(self):
-        return f"{self.airplane}"
-
-
-class OrdersUsers(models.Model):
-    user = models.ForeignKey('Users', on_delete=models.CASCADE)
-    order = models.ForeignKey('Orders', on_delete=models.CASCADE)
+        return f"{self.total_amount}"
 
 
 class Users(models.Model):
@@ -48,7 +40,6 @@ class Users(models.Model):
     phone = models.CharField(max_length=30)
     email = models.EmailField(max_length=50)
     passport = models.OneToOneField('Passports', on_delete=models.CASCADE)
-    orders_users_mtm = models.ManyToManyField('Orders', through='OrdersUsers')
 
     def __str__(self):
         return f"{self.name}"
@@ -75,20 +66,23 @@ class Routes(models.Model):
     date_departure = models.DateTimeField()
     date_arrival = models.DateTimeField()
     price = models.PositiveIntegerField(default=328)
+    aircraft = models.ForeignKey('Aircrafts', on_delete=models.CASCADE)
 
     def __str__(self):
         return f"from {self.country_departure} to {self.country_arrival}"
 
 
 class Seats(models.Model):
-    seat_number = models.PositiveIntegerField(default=0, validators=[])
-    user = models.ForeignKey('Users', on_delete=models.CASCADE)
-    airplane = models.ForeignKey('Airplanes', on_delete=models.CASCADE)
+    seat_number = models.IntegerField(null=True)
+    aircraft = models.ForeignKey('Aircrafts', on_delete=models.CASCADE)
+    order = models.ForeignKey('Orders', on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('airplane',
+        unique_together = ('aircraft',
                            'seat_number',
                            )
 
     def __str__(self):
         return f"{self.seat_number}"
+
+

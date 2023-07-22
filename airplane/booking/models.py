@@ -1,23 +1,12 @@
 from django.db import models
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator
 
-# Create your models here.
-
-SEX = [
-    ("m", "male"),
-    ("f", "female")
-]
-
-STATUS_CHOICES = [
-    ("p", "paid"),
-    ("n", "not paid"),
-    ("r", "rejected")
-]
+from booking.enums import SexTypes, StatusChoices
 
 
 class Aircrafts(models.Model):
     name = models.CharField(max_length=100)
+    iata_aircraft = models.CharField(max_length=20, default='733')
     amount = models.IntegerField()
 
     def __str__(self):
@@ -25,10 +14,14 @@ class Aircrafts(models.Model):
 
 
 class Orders(models.Model):
-    user = models.ForeignKey('Users', on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        'Users',
+        on_delete=models.CASCADE,
+        related_name='user_orders',
+    )
     total_amount = models.IntegerField()
     date = models.DateTimeField()
-    status = models.CharField(max_length=1, choices=STATUS_CHOICES)
+    status = models.CharField(max_length=10, choices=StatusChoices.choices)
 
     def __str__(self):
         return f"{self.total_amount}"
@@ -39,7 +32,11 @@ class Users(models.Model):
     surname = models.CharField(max_length=40)
     phone = models.CharField(max_length=30)
     email = models.EmailField(max_length=50)
-    passport = models.OneToOneField('Passports', on_delete=models.CASCADE)
+    passport = models.OneToOneField(
+        'Passports',
+        on_delete=models.CASCADE,
+        related_name='passport_users',
+    )
 
     def __str__(self):
         return f"{self.name}"
@@ -48,7 +45,7 @@ class Users(models.Model):
 class Passports(models.Model):
     passport_number = models.CharField(max_length=40)
     nationality = models.CharField(max_length=40)
-    sex = models.CharField(max_length=1, choices=SEX)
+    sex = models.CharField(max_length=10, choices=SexTypes.choices)
     date_of_birth = models.DateField()
     date_of_issue = models.DateField()
     date_of_expire = models.DateField()
@@ -63,10 +60,28 @@ class Routes(models.Model):
     country_arrival = models.CharField(max_length=40, default='Poland')
     city_departure = models.CharField(max_length=40, default='Minsk')
     city_arrival = models.CharField(max_length=40, default='Warsaw')
-    date_departure = models.DateTimeField()
-    date_arrival = models.DateTimeField()
-    price = models.PositiveIntegerField(default=328)
-    aircraft = models.ForeignKey('Aircrafts', on_delete=models.CASCADE)
+    date_arrival = models.DateField()
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.0,
+        validators=[MinValueValidator(0.0)],
+    )
+    aircraft = models.ForeignKey(
+        'Aircrafts',
+        on_delete=models.CASCADE,
+        related_name='aircraft_routes',
+    )
+    airline = models.ForeignKey(
+        'Airlines',
+        on_delete=models.CASCADE,
+        related_name='airline_routes',
+    )
+    temporary = models.OneToOneField(
+        'Temporary',
+        on_delete=models.CASCADE,
+        related_name='temporary_routes'
+    )
 
     def __str__(self):
         return f"from {self.country_departure} to {self.country_arrival}"
@@ -74,8 +89,16 @@ class Routes(models.Model):
 
 class Seats(models.Model):
     seat_number = models.IntegerField(null=True)
-    aircraft = models.ForeignKey('Aircrafts', on_delete=models.CASCADE)
-    order = models.ForeignKey('Orders', on_delete=models.CASCADE)
+    aircraft = models.ForeignKey(
+        'Aircrafts',
+        on_delete=models.CASCADE,
+        related_name='aircraft_seats',
+    )
+    order = models.ForeignKey(
+        'Orders',
+        on_delete=models.CASCADE,
+        related_name='order_seats',
+    )
 
     class Meta:
         unique_together = ('aircraft',
@@ -86,3 +109,18 @@ class Seats(models.Model):
         return f"{self.seat_number}"
 
 
+class Airlines(models.Model):
+    name = models.CharField(max_length=50)
+    iata_airline = models.CharField(max_length=4)
+
+    def __str__(self):
+        return f"{self.name}"
+
+
+class Temporary(models.Model):
+    iata_departure = models.CharField(max_length=20)
+    iata_arrival = models.CharField(max_length=20)
+    date_departure = models.DateField()
+
+    def __str__(self):
+        return f"{self.iata_departure}"

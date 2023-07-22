@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from .models import Users
+
+from booking.models import Users
 
 
 def main(request):

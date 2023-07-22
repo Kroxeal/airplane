@@ -1,5 +1,6 @@
 from django.urls import path, re_path
-from .views import main, all_users
+
+from booking.views import main, all_users
 
 urlpatterns = [
     path('main/', main, name='main'),

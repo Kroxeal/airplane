@@ -24,7 +24,9 @@ INSTALLED_APPS = [
     'django_extensions',
     'booking',
     'rest_framework',
+    'rest_framework.authtoken',
     'bootstrap5',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -102,3 +104,28 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 API_KEY = os.environ.get('API_KEY')
 API_ID = os.environ.get('API_ID')
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ]
+}
+
+DJOSER = {
+    # 'AUTH_USER_MODEL': 'airplane.Users',
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SERIALIZERS': {
+            'user_create': 'airplane.serializers.CreateUserSerializer',
+        },
+}
+
+AUTH_USER_MODEL = 'booking.Users'

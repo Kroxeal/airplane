@@ -5,5 +5,8 @@ django-bootstrap-v5==1.0.11
 django-extensions==3.2.3
 djangorestframework==3.14.0
 pyairports==2.1.1
+Markdown==3.4.4
+django-filter==23.2
+djoser==2.2.0
 
 

@@ -1,0 +1,21 @@
+<!-- routes_detail.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Routes Detail</title>
+</head>
+<body>
+    <h1>Routes Detail</h1>
+    <p>Departure: {{ instance.departure }}</p>
+    <p>Arrival: {{ instance.arrival }}</p>
+    <p>Date Departure: {{ instance.date_departure }}</p>
+    <p>IATA Departure: {{ instance.iata_departure }}</p>
+    <p>IATA Arrival: {{ instance.iata_arrival }}</p>
+
+    <form method="post" action="{% url 'save_data' pk=instance.pk %}">
+        {% csrf_token %}
+        <input type="submit" value="Save Data">
+    </form>
+</body>
+</html>

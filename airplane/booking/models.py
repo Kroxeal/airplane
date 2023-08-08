@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from django.contrib.auth.models import AbstractUser
 
 from booking.enums import SexTypes, StatusChoices
 
@@ -27,7 +28,7 @@ class Orders(models.Model):
         return f"{self.total_amount}"
 
 
-class Users(models.Model):
+class Users(AbstractUser):
     name = models.CharField(max_length=40)
     surname = models.CharField(max_length=40)
     phone = models.CharField(max_length=30)
@@ -36,10 +37,27 @@ class Users(models.Model):
         'Passports',
         on_delete=models.CASCADE,
         related_name='passport_users',
+        null=True,
+    )
+
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='booking_users',
+        blank=True,
+        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+        verbose_name='groups',
+    )
+
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='booking_users',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        verbose_name='user permissions',
     )
 
     def __str__(self):
-        return f"{self.name}"
+        return f"{self.username}"
 
 
 class Passports(models.Model):
@@ -70,17 +88,22 @@ class Routes(models.Model):
     aircraft = models.ForeignKey(
         'Aircrafts',
         on_delete=models.CASCADE,
-        related_name='aircraft_routes',
+        related_name='aircraft_route',
     )
     airline = models.ForeignKey(
         'Airlines',
         on_delete=models.CASCADE,
-        related_name='airline_routes',
+        related_name='airline_route',
     )
     temporary = models.OneToOneField(
         'Temporary',
         on_delete=models.CASCADE,
-        related_name='temporary_routes'
+        related_name='temporary_route'
+    )
+    user = models.ForeignKey(
+        'Users',
+        on_delete=models.CASCADE,
+        related_name='user_route',
     )
 
     def __str__(self):
@@ -92,12 +115,12 @@ class Seats(models.Model):
     aircraft = models.ForeignKey(
         'Aircrafts',
         on_delete=models.CASCADE,
-        related_name='aircraft_seats',
+        related_name='aircraft_seat',
     )
     order = models.ForeignKey(
         'Orders',
         on_delete=models.CASCADE,
-        related_name='order_seats',
+        related_name='order_seat',
     )
 
     class Meta:
@@ -121,6 +144,12 @@ class Temporary(models.Model):
     iata_departure = models.CharField(max_length=20)
     iata_arrival = models.CharField(max_length=20)
     date_departure = models.DateField()
+
+    user = models.ForeignKey(
+        'Users',
+        on_delete=models.CASCADE,
+        related_name='user_temporary',
+    )
 
     def __str__(self):
         return f"{self.iata_departure}"

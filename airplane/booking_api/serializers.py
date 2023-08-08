@@ -220,24 +220,25 @@ class PersonalAccountSerializer(serializers.ModelSerializer):
         ]
 
     def update(self, instance, validated_data):
-        # passport_data = validated_data.pop('passport')
-        # if passport_data:
-        #     passport_instance = instance.passport
-        #     if passport_instance:
-        #         passport_serializer = PassportSerializer(passport_instance, data=passport_data)
-        #         if passport_serializer.is_valid():
-        #             passport_serializer.save()
-        #     else:
-        #         passport_serializer = PassportSerializer(data=passport_data)
-        #         if passport_serializer.is_valid():
-        #             passport_serializer.save(user=instance)
+        passport_data = validated_data.pop('passport')
+
+        passport_instance, created_passport = Passports.objects.update_or_create(**passport_data)
+        passport_instance.passport_number = validated_data.get('passport_number', passport_instance.passport_number)
+        passport_instance.nationality = validated_data.get('nationality', passport_instance.nationality)
+        passport_instance.sex = validated_data.get('sex', passport_instance.sex)
+        passport_instance.date_of_birth = validated_data.get('date_of_birth', passport_instance.date_of_birth)
+        passport_instance.date_of_issue = validated_data.get('date_of_issue', passport_instance.date_of_issue)
+        passport_instance.date_of_expire = validated_data.get('date_of_expire', passport_instance.date_of_expire)
+        passport_instance.photo = validated_data.get('photo', passport_instance.photo)
+        passport_instance.save()
 
         instance.name = validated_data.get('name', instance.name)
         instance.surname = validated_data.get('surname', instance.surname)
         instance.phone = validated_data.get('phone', instance.phone)
         instance.email = validated_data.get('email', instance.email)
+        instance.passport_id = passport_instance.id
         instance.save()
-        return instance
 
+        return instance
 
 

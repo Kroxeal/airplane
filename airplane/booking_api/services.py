@@ -112,5 +112,3 @@ class CurrentUser:
         validated_data['user'] = user_instance
         return validated_data
 
-
-

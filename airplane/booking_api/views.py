@@ -16,10 +16,10 @@ import os
 
 from rest_framework.views import APIView
 
-from booking.models import Users, Routes, Temporary, Seats
+from booking.models import Users, Routes, Temporary, Seats, Orders, Passports
 from booking_api.serializers import UsersSerializer, RouteSerializer, TemporarySerializer, \
     RouteDetailSerializer, TemporaryAllSerializer, AircraftSerializer, AirlineSerializer, \
-    RouteSerializer, SeatsSerializer
+    RouteSerializer, SeatsSerializer, PassportSerializer, PersonalAccountSerializer
 from booking_api.logic import decoding_city_to_iata
 from booking_api.services import TemporaryService
 
@@ -40,38 +40,8 @@ class RoutesViewSet(
     mixins.CreateModelMixin,
     viewsets.GenericViewSet,
 ):
-    # permission_classes = [
-    #     IsAdminUser,
-    # ]
-    # queryset = Temporary.objects.all()
-    # serializer_class = TemporaryAllSerializer
     queryset = Routes.objects.all()
     serializer_class = RouteSerializer
-
-    # def get_serializer_class(self):
-    #     if self.request.method == 'get':
-    #         return TemporaryAllSerializer
-    #     else:
-    #         return RouteDetailSerializer
-    #
-    # @action(detail=True, methods=['get'])
-    # def save_data_to_db(self, request, pk=None) -> Response:
-    #     instance = Temporary.objects.get(id=pk)
-    #
-    #     data_all = TemporaryService.response_from_api(instance=instance)
-    #     print(data_all)
-    #
-    #     return Response(data=data_all, status=status.HTTP_200_OK)
-
-        # if request.method == 'get':
-        #     return Response(data=data_all, status=status.HTTP_200_OK)
-        # elif request.method == 'post':
-        #     serializer = self.get_serializer(data=data_all)
-        #     serializer.is_valid(raise_exception=True)
-        #     serializer.save()
-        #     return Response({'message': 'Данные успешно сохранены.'}, status=status.HTTP_201_CREATED)
-        # else:
-        #     return Response({'message': 'Метод не поддерживается.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def create(self, request, *args, **kwargs):
         data = request.data
@@ -180,7 +150,22 @@ class TemporaryAPIAllViewSet(
         return Response(data=data, status=status.HTTP_200_OK)
 
 
+class PassportAPIAllViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    queryset = Passports.objects.all()
+    serializer_class = PassportSerializer
 
 
-
-
+class PersonalAccountViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+    mixins.UpdateModelMixin
+):
+    queryset = Users.objects.all()
+    serializer_class = PersonalAccountSerializer

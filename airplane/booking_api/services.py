@@ -105,12 +105,12 @@ class TemporaryService:
 
 
 class CurrentUser:
-
     @staticmethod
     def set_current_user(self, validated_data):
         current_user = self.context['request'].user
         user_instance = Users.objects.get(id=current_user.id)
         validated_data['user'] = user_instance
         return validated_data
+
 
 

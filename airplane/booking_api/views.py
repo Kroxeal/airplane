@@ -1,26 +1,14 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse
-from django.conf import settings
-from django.db.models import F
-from django.urls import reverse
+from django.db import transaction
 
 from rest_framework import viewsets, mixins
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework import status
-import requests.exceptions
-import requests
-import os
-
-from rest_framework.views import APIView
 
 from booking.models import Users, Routes, Temporary, Seats, Orders, Passports
 from booking_api.serializers import UsersSerializer, RouteSerializer, TemporarySerializer, \
     RouteDetailSerializer, TemporaryAllSerializer, AircraftSerializer, AirlineSerializer, \
     RouteSerializer, SeatsSerializer, PassportSerializer, PersonalAccountSerializer
-from booking_api.logic import decoding_city_to_iata
 from booking_api.services import TemporaryService
 
 
@@ -43,6 +31,7 @@ class RoutesViewSet(
     queryset = Routes.objects.all()
     serializer_class = RouteSerializer
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         data = request.data
 
@@ -109,8 +98,11 @@ class TemporaryAPIViewSet(
         pk = self.kwargs.get('pk')
         instance = Temporary.objects.get(id=pk)
         data_all = TemporaryService.response_from_api(instance=instance)
+        if not data_all.get('city_arrival'):
+            raise APIException(detail="There's no such route :)")
         return Response(data=data_all, status=status.HTTP_200_OK)
 
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         data = request.data
 

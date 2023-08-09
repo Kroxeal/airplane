@@ -1,8 +1,5 @@
-from typing import Dict, Any
-import json
-
+from django.db import transaction
 from djoser.serializers import UserCreateSerializer
-from pyairports.airports import Airports
 from rest_framework import serializers
 
 from booking.models import Users, Routes, Temporary, Aircrafts, Seats, Orders, Passports, Airlines
@@ -135,6 +132,7 @@ class RouteSerializer(serializers.ModelSerializer):
     def get_temporary(self, obj):
         return obj.temporary.iata_arrival if obj.temporary else None
 
+    @transaction.atomic
     def create(self, validated_data):
         aircraft_data = validated_data.pop('aircraft')
         airline_data = validated_data.pop('airline')
@@ -144,7 +142,8 @@ class RouteSerializer(serializers.ModelSerializer):
         validated_data['user'] = user_instance
 
         temporary_instance = Temporary.objects.filter(user_id=current_user.id)
-        validated_data['temporary'] = temporary_instance[::-1][0]
+        if temporary_instance:
+            validated_data['temporary'] = temporary_instance[::-1][0]
 
         aircraft_instance, created_aircraft = Aircrafts.objects.get_or_create(**aircraft_data)
         airline_instance, created_airline = Airlines.objects.get_or_create(**airline_data)
@@ -179,12 +178,14 @@ class SeatsSerializer(serializers.ModelSerializer):
     def get_user(self, obj):
         return obj.user.username if obj.user else None
 
+    @transaction.atomic
     def create(self, validated_data):
         order_data = validated_data.pop('order')
 
         current_user = self.context['request'].user
         user_instance = Users.objects.get(id=current_user.id)
         validated_data['user'] = user_instance
+        order_data['user_id'] = current_user.id
 
         temporary_instance = Temporary.objects.filter(user_id=current_user.id)
         last_temporary = temporary_instance[::-1][0]
@@ -219,6 +220,7 @@ class PersonalAccountSerializer(serializers.ModelSerializer):
             'passport',
         ]
 
+    @transaction.atomic
     def update(self, instance, validated_data):
         passport_data = validated_data.pop('passport')
 

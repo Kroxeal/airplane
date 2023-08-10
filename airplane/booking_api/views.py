@@ -5,10 +5,10 @@ from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework import status
 
-from booking.models import Users, Routes, Temporary, Seats, Orders, Passports
+from booking.models import Users, Routes, Temporary, Seats, Orders, Passports, Aircrafts
 from booking_api.serializers import UsersSerializer, RouteSerializer, TemporarySerializer, \
     RouteDetailSerializer, TemporaryAllSerializer, AircraftSerializer, AirlineSerializer, \
-    RouteSerializer, SeatsSerializer, PassportSerializer, PersonalAccountSerializer
+    RouteSerializer, SeatsSerializer, PassportSerializer, PersonalAccountSerializer, OrderSerializer
 from booking_api.services import TemporaryService
 
 

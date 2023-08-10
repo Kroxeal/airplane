@@ -81,11 +81,6 @@ class PassportSerializer(serializers.ModelSerializer):
     def get_passport(self, obj):
         return obj.passport.passport_number if obj.passport else None
 
-    # def create(self, validated_data):
-    #     users = self.context['request'].user
-    #     passport_instance, created = Passports.objects.update_or_create(users=users, defaults=validated_data)
-    #     return passport_instance
-
 
 class AirlineSerializer(serializers.ModelSerializer):
     class Meta:
@@ -191,6 +186,8 @@ class SeatsSerializer(serializers.ModelSerializer):
         last_temporary = temporary_instance[::-1][0]
         routes_instanse = Routes.objects.get(temporary_id=last_temporary.id)
         aircraft_instanse = Aircrafts.objects.get(id=routes_instanse.aircraft_id)
+
+        order_data['total_amount'] = routes_instanse.price
 
         order_instance = Orders.objects.create(**order_data)
 

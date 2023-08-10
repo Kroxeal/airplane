@@ -125,7 +125,11 @@ DJOSER = {
     'USER_CREATE_PASSWORD_RETYPE': True,
     'SERIALIZERS': {
             'user_create': 'airplane.serializers.CreateUserSerializer',
-        },
+    },
+    'PERMISSIONS': {
+            'user_create': ['rest_framework.permissions.AllowAny'],
+    },
+
 }
 
 AUTH_USER_MODEL = 'booking.Users'

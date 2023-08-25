@@ -1,17 +1,11 @@
-from pyairports.airports import Airports
-
+import os
 import json
-
-# city = 'Minsk'
-# airports = Airports()
-# airport = airports.find(city=city)
-# print(airport[0]['iata'])
 
 city = 'Minsk'
 
 
 def decoding_city_to_iata(city: str) -> str:
-    with open('D:\Project_EuzAir/airplane/airports.json', 'r') as f:
+    with open(os.environ.get('airports_file'), 'r') as f:
         data = json.load(f)
 
     for airport_code, airport_info in data.items():
